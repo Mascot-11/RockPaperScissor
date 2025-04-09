@@ -59,9 +59,10 @@ body {
 #game-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px;
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 /* Header */
@@ -69,9 +70,11 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 h1 {
@@ -113,7 +116,7 @@ h1 {
 
 /* Game Modes */
 .game-modes {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .mode-selector {
@@ -121,6 +124,7 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
+  justify-content: center;
 }
 
 .mode-btn {
@@ -133,6 +137,7 @@ h1 {
   transition: all 0.2s ease;
   color: var(--text-color);
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .mode-btn:hover {
@@ -150,6 +155,8 @@ h1 {
 .difficulty-selector {
   display: flex;
   gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .difficulty-btn {
@@ -233,17 +240,18 @@ h1 {
 .scoreboard {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .score-card {
   background: var(--card-bg);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px;
   text-align: center;
   box-shadow: 0 2px 4px var(--shadow-color);
   border: 1px solid var(--border-color);
+  position: relative;
 }
 
 .player-card {
@@ -407,8 +415,8 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  height: 100px;
+  margin-bottom: 20px;
+  height: 90px;
 }
 
 .player-side,
@@ -464,7 +472,10 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .option {
@@ -538,7 +549,7 @@ h1 {
 .special-moves {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .special-move-btn {
@@ -580,7 +591,7 @@ h1 {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px var(--shadow-color);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   border: 1px solid var(--border-color);
 }
 
@@ -748,7 +759,7 @@ th {
 
 .achievements-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 }
 
@@ -974,6 +985,8 @@ th {
 
 .modal-body {
   padding: 12px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .modal-body h3 {
@@ -1056,8 +1069,25 @@ th {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
   .scoreboard {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .score-card {
+    padding: 8px;
+  }
+
+  .score {
+    font-size: 1.75rem;
+  }
+
+  .round-number {
+    font-size: 1rem;
   }
 
   .battle-arena {
@@ -1070,54 +1100,123 @@ th {
     font-size: 1.75rem;
   }
 
-  .options-container {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
   .emoji {
     font-size: 2rem;
   }
 
-  .tab-buttons {
-    grid-template-columns: 1fr;
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 
-  .achievements-grid {
-    grid-template-columns: 1fr;
+  .achievement {
+    padding: 8px;
+  }
+
+  .achievement-icon {
+    width: 25px;
+    height: 25px;
+    font-size: 1rem;
+  }
+
+  .achievement-name {
+    font-size: 0.8rem;
+  }
+
+  .result-text {
+    font-size: 2.5rem;
+  }
+
+  .countdown {
+    font-size: 3.5rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   #game-container {
     padding: 12px;
   }
 
   header {
     flex-direction: column;
-    gap: 10px;
     align-items: flex-start;
   }
 
   .controls {
     align-self: flex-end;
+    margin-top: 8px;
   }
 
-  .options-container {
+  .mode-selector {
+    gap: 6px;
+  }
+
+  .mode-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .difficulty-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .scoreboard {
     grid-template-columns: 1fr;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
+    gap: 8px;
+  }
+
+  .score-card {
+    padding: 8px;
   }
 
   .battle-arena {
-    flex-direction: column;
     height: auto;
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .vs-container {
-    height: 24px;
+    height: 20px;
+  }
+
+  .vs-text {
+    font-size: 1rem;
+  }
+
+  .choice-display {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .options-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .emoji {
+    font-size: 1.75rem;
+  }
+
+  .option-label {
+    padding: 4px;
+    font-size: 0.75rem;
+  }
+
+  .tab-buttons {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .tab-button {
+    flex: 1;
+    white-space: nowrap;
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
   }
 
   .result-text {
@@ -1126,5 +1225,59 @@ th {
 
   .countdown {
     font-size: 3rem;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .modal-body {
+    padding: 10px;
+  }
+
+  #game-result {
+    font-size: 1.25rem;
+  }
+
+  .final-score-item span:last-child {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  .controls {
+    gap: 5px;
+  }
+
+  .control-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .options-container {
+    gap: 5px;
+  }
+
+  .emoji {
+    font-size: 1.5rem;
+  }
+
+  .choice-display {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+
+  .special-move-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .toast {
+    max-width: 200px;
   }
 }

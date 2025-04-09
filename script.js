@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
       computerChoice: null,
       result: null,
       countdown: null,
-      gameMode: "classic", // classic, best-of-5, time-attack
+      gameMode: "classic", // classic, best-of-5, time-attack, sudden-death, mirror
       difficulty: "medium", // easy, medium, hard
       playerStreak: 0,
       bestStreak: 0,
@@ -25,8 +25,22 @@ document.addEventListener("DOMContentLoaded", () => {
         allChoices: false,
         hardWin: false,
         specialMove: false,
+        perfectGame: false,
+        comeback: false,
+        gamesPlayed: false,
+        allModes: false,
       },
+      modesPlayed: {
+        classic: false,
+        bestOf5: false,
+        timeAttack: false,
+        suddenDeath: false,
+        mirror: false,
+      },
+      lastComputerChoice: null,
+      totalGamesPlayed: 0,
       isDarkTheme: false,
+      wasLosingByThree: false,
     }
   
     // DOM elements
@@ -45,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
       winRate: document.getElementById("win-rate"),
       currentRoundDisplay: document.getElementById("current-round"),
       bestStreakDisplay: document.getElementById("best-streak"),
-      playerStreak: document.getElementById("player-streak"),
       rockStats: document.getElementById("rock-stats"),
       paperStats: document.getElementById("paper-stats"),
       scissorsStats: document.getElementById("scissors-stats"),
@@ -62,10 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
       tabButtons: document.querySelectorAll(".tab-button"),
       tabPanels: document.querySelectorAll(".tab-panel"),
       currentYear: document.getElementById("current-year"),
-      themeSwitch: document.getElementById("theme-switch"),
+      themeToggle: document.getElementById("theme-toggle"),
       modeButtons: document.querySelectorAll(".mode-btn"),
       difficultyButtons: document.querySelectorAll(".difficulty-btn"),
-      difficultyBadge: document.getElementById("difficulty-badge"),
       timeAttackContainer: document.getElementById("time-attack-container"),
       timerProgress: document.querySelector(".timer-progress"),
       timerText: document.querySelector(".timer-text"),
@@ -90,6 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
         allChoices: document.getElementById("achievement-all-choices"),
         hardWin: document.getElementById("achievement-hard-win"),
         specialMove: document.getElementById("achievement-special-move"),
+        perfectGame: document.getElementById("achievement-perfect-game"),
+        comeback: document.getElementById("achievement-comeback"),
+        gamesPlayed: document.getElementById("achievement-games-played"),
+        allModes: document.getElementById("achievement-all-modes"),
       },
       achievementsCount: document.getElementById("achievements-count"),
       achievementProgress: {
@@ -99,14 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
         allChoices: document.getElementById("all-choices-progress"),
         hardWin: document.getElementById("hard-win-progress"),
         specialMove: document.getElementById("special-move-progress"),
-      },
-      achievementProgressText: {
-        firstWin: document.querySelector("#achievement-first-win .progress-text"),
-        streak: document.querySelector("#achievement-streak-3 .progress-text"),
-        win10: document.querySelector("#achievement-win-10 .progress-text"),
-        allChoices: document.querySelector("#achievement-all-choices .progress-text"),
-        hardWin: document.querySelector("#achievement-hard-win .progress-text"),
-        specialMove: document.querySelector("#achievement-special-move .progress-text"),
+        perfectGame: document.getElementById("perfect-game-progress"),
+        comeback: document.getElementById("comeback-progress"),
+        gamesPlayed: document.getElementById("games-played-progress"),
+        allModes: document.getElementById("all-modes-progress"),
       },
     }
   
@@ -120,9 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Initialize the game
     function init() {
-      // Set current year in footer
-      elements.currentYear.textContent = new Date().getFullYear()
-  
       // Load saved data from localStorage if available
       loadGameData()
   
@@ -145,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.addEventListener("click", () => switchTab(button.dataset.tab))
       })
   
-      elements.themeSwitch.addEventListener("change", toggleTheme)
+      elements.themeToggle.addEventListener("click", toggleTheme)
   
       elements.modeButtons.forEach((button) => {
         button.addEventListener("click", () => changeGameMode(button.dataset.mode))
@@ -167,8 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check for saved theme preference
       if (localStorage.getItem("darkTheme") === "true") {
         state.isDarkTheme = true
-        elements.themeSwitch.checked = true
         document.body.classList.add("dark-theme")
+        elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'
       }
   
       // Update UI
@@ -185,6 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
         bestStreak: state.bestStreak,
         achievements: state.achievements,
         winsWith: state.winsWith,
+        modesPlayed: state.modesPlayed,
+        totalGamesPlayed: state.totalGamesPlayed,
       }
       localStorage.setItem("rpsGameData", JSON.stringify(gameData))
     }
@@ -203,18 +214,32 @@ document.addEventListener("DOMContentLoaded", () => {
           allChoices: false,
           hardWin: false,
           specialMove: false,
+          perfectGame: false,
+          comeback: false,
+          gamesPlayed: false,
+          allModes: false,
         }
         state.winsWith = gameData.winsWith || { rock: false, paper: false, scissors: false }
+        state.modesPlayed = gameData.modesPlayed || {
+          classic: false,
+          bestOf5: false,
+          timeAttack: false,
+          suddenDeath: false,
+          mirror: false,
+        }
+        state.totalGamesPlayed = gameData.totalGamesPlayed || 0
       }
     }
   
     // Toggle theme
     function toggleTheme() {
-      state.isDarkTheme = elements.themeSwitch.checked
+      state.isDarkTheme = !state.isDarkTheme
       if (state.isDarkTheme) {
         document.body.classList.add("dark-theme")
+        elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'
       } else {
         document.body.classList.remove("dark-theme")
+        elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>'
       }
       localStorage.setItem("darkTheme", state.isDarkTheme)
     }
@@ -234,6 +259,16 @@ document.addEventListener("DOMContentLoaded", () => {
       // Show/hide best of progress
       elements.bestOfProgress.classList.toggle("hidden", mode !== "best-of-5")
   
+      // Track mode played
+      if (mode === "classic") state.modesPlayed.classic = true
+      if (mode === "best-of-5") state.modesPlayed.bestOf5 = true
+      if (mode === "time-attack") state.modesPlayed.timeAttack = true
+      if (mode === "sudden-death") state.modesPlayed.suddenDeath = true
+      if (mode === "mirror") state.modesPlayed.mirror = true
+  
+      // Check for all modes achievement
+      checkAllModesAchievement()
+  
       // Reset game if changing modes
       resetGame()
     }
@@ -246,8 +281,6 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.difficultyButtons.forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.difficulty === difficulty)
       })
-  
-      elements.difficultyBadge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
     }
   
     // Start time attack mode
@@ -301,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (state.gameMode === "time-attack" && !state.isTimerRunning) return
   
       // Start countdown
-      state.countdown = 3
+      state.countdown = 1
       state.playerChoice = choice
   
       // Add to player pattern for AI analysis
@@ -341,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
             processResult()
             elements.countdownDisplay.classList.add("hidden")
             state.countdown = null
-          }, 500)
+          }, 300)
         }
       }, 500)
     }
@@ -358,6 +391,30 @@ document.addEventListener("DOMContentLoaded", () => {
   
       // Update stats
       state.stats[gameResult === "win" ? "wins" : gameResult === "draw" ? "draws" : "loses"]++
+      state.totalGamesPlayed++
+  
+      // Check for perfect game achievement
+      if (state.stats.wins >= 5 && state.stats.loses === 0 && !state.achievements.perfectGame) {
+        state.achievements.perfectGame = true
+        unlockAchievement("perfectGame")
+      }
+  
+      // Check for comeback achievement
+      if (state.wasLosingByThree && state.stats.wins > state.stats.loses && !state.achievements.comeback) {
+        state.achievements.comeback = true
+        unlockAchievement("comeback")
+      }
+  
+      // Check if player is losing by 3 or more
+      if (state.stats.loses >= state.stats.wins + 3) {
+        state.wasLosingByThree = true
+      }
+  
+      // Check for games played achievement
+      if (state.totalGamesPlayed >= 20 && !state.achievements.gamesPlayed) {
+        state.achievements.gamesPlayed = true
+        unlockAchievement("gamesPlayed")
+      }
   
       // Update streak
       if (gameResult === "win") {
@@ -393,11 +450,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (optionType === state.playerChoice) {
           option.classList.add(gameResult === "win" ? "player-win" : gameResult === "lose" ? "computer-win" : "draw")
         }
-  
-        // Flip the selected option
-        if (optionType === state.playerChoice) {
-          option.classList.add("flipped")
-        }
       })
   
       // Update battle arena
@@ -410,7 +462,10 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         elements.playerChoice.classList.remove("flip")
         elements.computerChoice.classList.remove("flip")
-      }, 1000)
+      }, 500)
+  
+      // Store last computer choice for mirror mode
+      state.lastComputerChoice = state.computerChoice
   
       // Add to history
       state.gameHistory.unshift({
@@ -443,15 +498,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.stats.wins >= 5 || state.stats.loses >= 5) {
           setTimeout(() => {
             showGameOver()
-          }, 1500)
+          }, 1000)
         }
+      }
+  
+      // Check for sudden death game over
+      if (state.gameMode === "sudden-death" && gameResult === "lose") {
+        setTimeout(() => {
+          showGameOver()
+        }, 1000)
       }
   
       // Save game data
       saveGameData()
     }
   
-    // Get computer choice based on difficulty
+    // Get computer choice based on difficulty and game mode
     function getComputerChoice() {
       // If player used special move, computer always loses
       if (state.isSpecialMoveActive) {
@@ -461,6 +523,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.playerChoice === "rock") return "scissors"
         if (state.playerChoice === "paper") return "rock"
         if (state.playerChoice === "scissors") return "paper"
+      }
+  
+      // Mirror mode: Computer copies player's previous move
+      if (state.gameMode === "mirror" && state.lastComputerChoice) {
+        return state.playerChoice
       }
   
       // Easy difficulty: Computer makes more mistakes
@@ -538,7 +605,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateScoreboard() {
       elements.playerScore.textContent = state.stats.wins
       elements.computerScore.textContent = state.stats.loses
-      elements.playerStreak.textContent = state.playerStreak
       elements.roundDisplay.textContent = `Round ${state.currentRound}`
     }
   
@@ -684,16 +750,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   
+    // Check for all modes achievement
+    function checkAllModesAchievement() {
+      if (
+        state.modesPlayed.classic &&
+        state.modesPlayed.bestOf5 &&
+        state.modesPlayed.timeAttack &&
+        state.modesPlayed.suddenDeath &&
+        state.modesPlayed.mirror &&
+        !state.achievements.allModes
+      ) {
+        state.achievements.allModes = true
+        unlockAchievement("allModes")
+      }
+    }
+  
     // Unlock achievement
     function unlockAchievement(achievementId) {
       const achievement = elements.achievements[achievementId]
       if (achievement) {
-        // Update UI
-        const statusElement = achievement.querySelector(".achievement-status")
-        statusElement.classList.remove("locked")
-        statusElement.classList.add("unlocked")
-        statusElement.innerHTML = '<i class="fas fa-check"></i>'
-  
         // Add unlocked class to the achievement
         achievement.classList.add("unlocked")
   
@@ -714,8 +789,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
         // Trigger confetti
         confetti({
-          particleCount: 100,
-          spread: 70,
+          particleCount: 50,
+          spread: 60,
           origin: { y: 0.6 },
         })
       }
@@ -727,10 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (achieved) {
           const achievement = elements.achievements[id]
           if (achievement) {
-            const statusElement = achievement.querySelector(".achievement-status")
-            statusElement.classList.remove("locked")
-            statusElement.classList.add("unlocked")
-            statusElement.innerHTML = '<i class="fas fa-check"></i>'
+            achievement.classList.add("unlocked")
           }
         }
       }
@@ -746,8 +818,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
         // Trigger confetti for wins
         confetti({
-          particleCount: 100,
-          spread: 70,
+          particleCount: 50,
+          spread: 60,
           origin: { y: 0.6 },
         })
       } else if (result === "lose") {
@@ -761,7 +833,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hide result after animation
       setTimeout(() => {
         elements.resultDisplay.classList.add("hidden")
-      }, 1500)
+      }, 1000)
   
       // Show toast notification
       const resultMessages = {
@@ -823,7 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
       setTimeout(() => {
         elements.toast.classList.remove("show")
-      }, 3000)
+      }, 2000)
     }
   
     // Reset game
@@ -844,6 +916,7 @@ document.addEventListener("DOMContentLoaded", () => {
       state.specialMoveCount = 0
       state.isSpecialMoveActive = false
       state.timeLeft = 30
+      state.wasLosingByThree = false
   
       // Reset UI
       updateScoreboard()
@@ -897,47 +970,64 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     }
   
-    //Import confetti
-    const confetti = window.confetti
-  
     // Add a function to update achievement progress
     function updateAchievementProgress() {
       // First win progress
       const firstWinProgress = state.stats.wins > 0 ? 100 : 0
       elements.achievementProgress.firstWin.style.width = `${firstWinProgress}%`
-      elements.achievementProgressText.firstWin.textContent = `${Math.min(state.stats.wins, 1)}/1 wins`
   
       // Streak progress
       const streakProgress = (state.playerStreak / 3) * 100
       elements.achievementProgress.streak.style.width = `${Math.min(streakProgress, 100)}%`
-      elements.achievementProgressText.streak.textContent = `${state.playerStreak}/3 streak`
   
       // Win 10 progress
       const win10Progress = (state.stats.wins / 10) * 100
       elements.achievementProgress.win10.style.width = `${Math.min(win10Progress, 100)}%`
-      elements.achievementProgressText.win10.textContent = `${state.stats.wins}/10 wins`
   
       // All choices progress
       const choicesWon =
         (state.winsWith.rock ? 1 : 0) + (state.winsWith.paper ? 1 : 0) + (state.winsWith.scissors ? 1 : 0)
       const allChoicesProgress = (choicesWon / 3) * 100
       elements.achievementProgress.allChoices.style.width = `${allChoicesProgress}%`
-      elements.achievementProgressText.allChoices.textContent = `${choicesWon}/3 choices`
   
       // Hard win progress
       const hardWinProgress = state.achievements.hardWin ? 100 : 0
       elements.achievementProgress.hardWin.style.width = `${hardWinProgress}%`
-      elements.achievementProgressText.hardWin.textContent = `${state.achievements.hardWin ? 1 : 0}/1 hard wins`
   
       // Special move progress
       const specialMoveProgress = state.achievements.specialMove ? 100 : 0
       elements.achievementProgress.specialMove.style.width = `${specialMoveProgress}%`
-      elements.achievementProgressText.specialMove.textContent = `${state.achievements.specialMove ? 1 : 0}/1 special moves`
+  
+      // Perfect game progress
+      const perfectGameProgress = state.achievements.perfectGame
+        ? 100
+        : state.stats.wins >= 5 && state.stats.loses === 0
+          ? 100
+          : state.stats.loses > 0
+            ? 0
+            : (state.stats.wins / 5) * 100
+      elements.achievementProgress.perfectGame.style.width = `${perfectGameProgress}%`
+  
+      // Comeback progress
+      const comebackProgress = state.achievements.comeback ? 100 : 0
+      elements.achievementProgress.comeback.style.width = `${comebackProgress}%`
+  
+      // Games played progress
+      const gamesPlayedProgress = (state.totalGamesPlayed / 20) * 100
+      elements.achievementProgress.gamesPlayed.style.width = `${Math.min(gamesPlayedProgress, 100)}%`
+  
+      // All modes progress
+      const modesPlayed = Object.values(state.modesPlayed).filter(Boolean).length
+      const allModesProgress = (modesPlayed / 5) * 100
+      elements.achievementProgress.allModes.style.width = `${allModesProgress}%`
   
       // Update achievements count
       const achievedCount = Object.values(state.achievements).filter(Boolean).length
-      elements.achievementsCount.textContent = `${achievedCount}/6`
+      elements.achievementsCount.textContent = `${achievedCount}/10`
     }
+  
+    //Import confetti
+    const confetti = window.confetti
   
     // Initialize the game
     init()

@@ -8,26 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="background">
-        <div class="bg-animation"></div>
-    </div>
-
     <div id="confetti-container"></div>
 
     <div id="game-container">
         <header>
-            <div class="logo">
-                <h1>Rock Paper Scissors</h1>
-                <div class="theme-toggle">
-                    <input type="checkbox" id="theme-switch" class="theme-switch">
-                    <label for="theme-switch" class="theme-switch-label">
-                        <i class="fas fa-sun"></i>
-                        <i class="fas fa-moon"></i>
-                        <div class="ball"></div>
-                    </label>
-                </div>
-            </div>
+            <h1>Rock Paper Scissors</h1>
             <div class="controls">
+                <button id="theme-toggle" title="Toggle theme" class="control-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <button id="reset-game" title="Reset game" class="control-btn">
                     <i class="fas fa-redo-alt"></i>
                 </button>
@@ -38,43 +27,19 @@
         </header>
 
         <div class="game-modes">
-    <h2 class="section-title">Game Modes</h2>
-    <div class="mode-buttons">
-        <button class="mode-btn active" data-mode="classic">
-            <i class="fas fa-gamepad"></i>
-            <span>Classic</span>
-            <small>Play unlimited rounds</small>
-        </button>
-        <button class="mode-btn" data-mode="best-of-5">
-            <i class="fas fa-trophy"></i>
-            <span>Best of 5</span>
-            <small>First to 5 wins</small>
-        </button>
-        <button class="mode-btn" data-mode="time-attack">
-            <i class="fas fa-clock"></i>
-            <span>Time Attack</span>
-            <small>30 second challenge</small>
-        </button>
-    </div>
-</div>
-
-        <div class="difficulty-selector">
-    <h2 class="section-title">Difficulty</h2>
-    <div class="difficulty-buttons">
-        <button class="difficulty-btn" data-difficulty="easy">
-            <i class="fas fa-smile"></i>
-            <span>Easy</span>
-        </button>
-        <button class="difficulty-btn active" data-difficulty="medium">
-            <i class="fas fa-meh"></i>
-            <span>Medium</span>
-        </button>
-        <button class="difficulty-btn" data-difficulty="hard">
-            <i class="fas fa-dizzy"></i>
-            <span>Hard</span>
-        </button>
-    </div>
-</div>
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="classic">Classic</button>
+                <button class="mode-btn" data-mode="best-of-5">Best of 5</button>
+                <button class="mode-btn" data-mode="time-attack">Time Attack</button>
+                <button class="mode-btn" data-mode="sudden-death">Sudden Death</button>
+                <button class="mode-btn" data-mode="mirror">Mirror Match</button>
+            </div>
+            <div class="difficulty-selector">
+                <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                <button class="difficulty-btn active" data-difficulty="medium">Medium</button>
+                <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+            </div>
+        </div>
 
         <div id="time-attack-container" class="hidden">
             <div class="timer-container">
@@ -90,16 +55,11 @@
             <div class="score-card player-card">
                 <div class="score-title">You</div>
                 <div id="player-score" class="score">0</div>
-                <div class="streak-container">
-                    <div class="streak-label">Streak:</div>
-                    <div id="player-streak" class="streak">0</div>
-                </div>
             </div>
             <div class="score-card round-card">
                 <div id="round-display" class="round-number">Round 1</div>
                 <div id="draw-animation" class="draw-text">DRAW!</div>
                 <div id="best-of-progress" class="best-of-container hidden">
-                    <div class="best-of-text">First to 5 wins</div>
                     <div class="best-of-progress">
                         <div class="player-progress"></div>
                         <div class="computer-progress"></div>
@@ -109,14 +69,11 @@
             <div class="score-card computer-card">
                 <div class="score-title">Computer</div>
                 <div id="computer-score" class="score">0</div>
-                <div class="badge-container">
-                    <div id="difficulty-badge" class="difficulty-badge">Medium</div>
-                </div>
             </div>
         </div>
 
         <div id="countdown-display" class="countdown-container hidden">
-            <div class="countdown">3</div>
+            <div class="countdown">1</div>
         </div>
 
         <div id="result-display" class="result-container hidden">
@@ -144,11 +101,6 @@
                         </div>
                         <div class="option-label">Rock</div>
                     </div>
-                    <div class="option-back">
-                        <div class="option-content">
-                            <span class="emoji">👊</span>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="option" data-option="paper">
@@ -159,11 +111,6 @@
                         </div>
                         <div class="option-label">Paper</div>
                     </div>
-                    <div class="option-back">
-                        <div class="option-content">
-                            <span class="emoji">✋</span>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="option" data-option="scissors">
@@ -173,11 +120,6 @@
                             <span class="emoji">✌️</span>
                         </div>
                         <div class="option-label">Scissors</div>
-                    </div>
-                    <div class="option-back">
-                        <div class="option-content">
-                            <span class="emoji">✌️</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -278,106 +220,122 @@
                     </div>
                 </div>
                 <div id="achievements-tab" class="tab-panel">
-    <h3 class="achievements-title">Your Achievements <span id="achievements-count">0/6</span></h3>
-    <div class="achievements-grid">
-        <div class="achievement" id="achievement-first-win">
-            <div class="achievement-icon">🏆</div>
-            <div class="achievement-info">
-                <div class="achievement-name">First Victory</div>
-                <div class="achievement-desc">Win your first game</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="first-win-progress" class="progress" style="width: 0%"></div>
+                    <div class="achievements-header">
+                        <span id="achievements-count">0/10</span>
                     </div>
-                    <div class="progress-text">0/1 wins</div>
-                </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-        <div class="achievement" id="achievement-streak-3">
-            <div class="achievement-icon">🔥</div>
-            <div class="achievement-info">
-                <div class="achievement-name">On Fire</div>
-                <div class="achievement-desc">Win 3 games in a row</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="streak-progress" class="progress" style="width: 0%"></div>
+                    <div class="achievements-grid">
+                        <div class="achievement" id="achievement-first-win">
+                            <div class="achievement-icon">🏆</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">First Victory</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="first-win-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-streak-3">
+                            <div class="achievement-icon">🔥</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">On Fire</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="streak-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-win-10">
+                            <div class="achievement-icon">💯</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Dedicated Player</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="win-10-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-all-choices">
+                            <div class="achievement-icon">🌈</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Versatile</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="all-choices-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-hard-win">
+                            <div class="achievement-icon">⚔️</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Challenger</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="hard-win-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-special-move">
+                            <div class="achievement-icon">⚡</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Power User</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="special-move-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-perfect-game">
+                            <div class="achievement-icon">🎯</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Perfect Game</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="perfect-game-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-comeback">
+                            <div class="achievement-icon">🔄</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Comeback King</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="comeback-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-games-played">
+                            <div class="achievement-icon">🎮</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Enthusiast</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="games-played-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement-all-modes">
+                            <div class="achievement-icon">🏅</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">Mode Master</div>
+                                <div class="achievement-progress">
+                                    <div class="progress-bar">
+                                        <div id="all-modes-progress" class="progress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="progress-text">0/3 streak</div>
                 </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-        <div class="achievement" id="achievement-win-10">
-            <div class="achievement-icon">💯</div>
-            <div class="achievement-info">
-                <div class="achievement-name">Dedicated Player</div>
-                <div class="achievement-desc">Win 10 games total</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="win-10-progress" class="progress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text">0/10 wins</div>
-                </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-        <div class="achievement" id="achievement-all-choices">
-            <div class="achievement-icon">🌈</div>
-            <div class="achievement-info">
-                <div class="achievement-name">Versatile</div>
-                <div class="achievement-desc">Win with all three choices</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="all-choices-progress" class="progress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text">0/3 choices</div>
-                </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-        <div class="achievement" id="achievement-hard-win">
-            <div class="achievement-icon">⚔️</div>
-            <div class="achievement-info">
-                <div class="achievement-name">Challenger</div>
-                <div class="achievement-desc">Win on hard difficulty</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="hard-win-progress" class="progress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text">0/1 hard wins</div>
-                </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-        <div class="achievement" id="achievement-special-move">
-            <div class="achievement-icon">⚡</div>
-            <div class="achievement-info">
-                <div class="achievement-name">Power User</div>
-                <div class="achievement-desc">Use a special move</div>
-                <div class="achievement-progress">
-                    <div class="progress-bar">
-                        <div id="special-move-progress" class="progress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text">0/1 special moves</div>
-                </div>
-            </div>
-            <div class="achievement-status locked">
-                <i class="fas fa-lock"></i>
-            </div>
-        </div>
-    </div>
-</div>
             </div>
         </div>
 
@@ -407,6 +365,8 @@
                         <li><strong>Classic:</strong> Play as many rounds as you want</li>
                         <li><strong>Best of 5:</strong> First to win 5 rounds wins the game</li>
                         <li><strong>Time Attack:</strong> Score as many points as possible in 30 seconds</li>
+                        <li><strong>Sudden Death:</strong> First to lose a round loses the game</li>
+                        <li><strong>Mirror Match:</strong> Computer copies your previous move</li>
                     </ul>
                     
                     <h3>Special Moves:</h3>
@@ -443,11 +403,6 @@
                 </div>
             </div>
         </div>
-
-        <footer>
-            <p>Enhanced Rock Paper Scissors Game &copy; <span id="current-year"></span></p>
-            <p>Made with HTML, CSS, and JavaScript</p>
-        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
